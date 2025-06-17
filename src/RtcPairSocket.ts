@@ -1,5 +1,5 @@
 import { EventEmitter } from 'ee-typed';
-import Peer, { DataConnection } from 'peerjs';
+import Peer, { DataConnection, PeerOptions } from 'peerjs';
 import Cipher from './Cipher';
 import Key from './Key';
 
@@ -22,9 +22,17 @@ export default class RtcPairSocket extends EventEmitter<Events> {
   constructor(
     readonly pairingCode: string,
     readonly party: 'alice' | 'bob',
-    readonly config?: RTCConfiguration,
+    readonly peerOptions?: PeerOptions,
   ) {
     super();
+
+    if ('iceServers' in ((peerOptions ?? {}) as any)) {
+      throw new Error([
+        'The third argument to RtcPairSocket changed in 0.2.0.',
+        ' Please supply PeerOptions (PeerJS) instead of RTCConfiguration.'
+      ].join(''));
+    }
+
     const key = Key.fromSeed(pairingCode);
     this.cipher = new Cipher(key);
 
@@ -32,7 +40,7 @@ export default class RtcPairSocket extends EventEmitter<Events> {
     this.alicePeerId = `${idPrefix}-alice`;
     this.bobPeerId = `${idPrefix}-bob`;
     this.peerId = party === 'alice' ? this.alicePeerId : this.bobPeerId;
-    this.peer = new Peer(this.peerId, { config: this.config });
+    this.peer = new Peer(this.peerId, this.peerOptions);
 
     this.connect().catch((err) => this.emit('error', ensureError(err)));
   }

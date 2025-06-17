@@ -1,6 +1,10 @@
 # RTC Pair Socket
 
-`RtcPairSocket` is a lightweight TypeScript class for establishing encrypted peer-to-peer communication between two parties (Alice and Bob) using [PeerJS](https://peerjs.com/) and an encryption layer. This library facilitates encrypted message exchange over WebRTC, with events to handle connection, data, and errors.
+`RtcPairSocket` is a lightweight TypeScript class for establishing encrypted
+peer-to-peer communication between two parties (Alice and Bob) using
+[PeerJS](https://peerjs.com/) and an encryption layer. This library facilitates
+encrypted message exchange over WebRTC, with events to handle connection, data,
+and errors.
 
 ## Features
 
@@ -20,35 +24,35 @@ npm install
 ## Usage
 
 ```ts
-import RtcPairSocket from './RtcPairSocket';
+import RtcPairSocket from "./RtcPairSocket";
 
-const pairingCode = 'your-secret-code';
-const party = 'alice'; // or 'bob'
+const pairingCode = "your-secret-code";
+const party = "alice"; // or 'bob'
 
 const socket = new RtcPairSocket(pairingCode, party);
 
-socket.on('open', () => {
-  console.log('Connection opened!');
+socket.on("open", () => {
+  console.log("Connection opened!");
 });
 
-socket.on('message', (data) => {
-  console.log('Received message:', data);
+socket.on("message", (data) => {
+  console.log("Received message:", data);
 });
 
-socket.on('error', (err) => {
-  console.error('Error:', err);
+socket.on("error", (err) => {
+  console.error("Error:", err);
 });
 
-socket.on('close', () => {
-  console.log('Connection closed.');
+socket.on("close", () => {
+  console.log("Connection closed.");
 });
 
 // To send a message
-socket.send('Hello, Bob!');
+socket.send("Hello, Bob!");
 
 // You can also send structures and they'll be reconstructed on the other side
 // (not classes though, basically json plus undefined and Uint8Array)
-socket.send([1, 2, 'three']);
+socket.send([1, 2, "three"]);
 ```
 
 ## Turn Servers / Reliability
@@ -64,17 +68,20 @@ this to `RtcPairSocket`:
 
 ```ts
 new RtcPairSocket(pairingCode, party, {
-  iceServers: [
-    // Google's free stun server. It's important to include this one.
-    { urls: "stun:stun.l.google.com:19302" },
+  config: {
+    iceServers: [
+      // Google's free stun server. It's important to include this one.
+      { urls: "stun:stun.l.google.com:19302" },
 
-    // Your turn server. Replace each field with values specific to your setup.
-    {
-      urls: "turn:your-turn-server.com:3478",
-      username: "your-username",
-      credential: "your-password",
-    },
-  ],
+      // Your turn server. Replace each field with values specific to your setup.
+      {
+        urls: "turn:your-turn-server.com:3478",
+        username: "your-username",
+        credential: "your-password",
+      },
+    ],
+  },
+  // optional: other PeerOptions (see PeerJS)
 });
 ```
 
@@ -95,9 +102,13 @@ In many cases, `RtcPairSocket` will work without this extra step.
 
 ## How it Works
 
-- **Pairing Code**: A shared secret is used as the seed for generating a symmetric encryption key. This ensures that only Alice and Bob can decrypt each other's messages.
-- **Peer Connection**: Depending on the party (alice or bob), the socket establishes a WebRTC connection to the other party.
-- **Encryption**: All messages sent over the connection are encrypted using the Cipher class, which encrypts and decrypts data using the shared key.
+- **Pairing Code**: A shared secret is used as the seed for generating a
+  symmetric encryption key. This ensures that only Alice and Bob can decrypt
+  each other's messages.
+- **Peer Connection**: Depending on the party (alice or bob), the socket
+  establishes a WebRTC connection to the other party.
+- **Encryption**: All messages sent over the connection are encrypted using the
+  Cipher class, which encrypts and decrypts data using the shared key.
 
 ## License
 
